@@ -1,0 +1,39 @@
+{
+	"tasks": [
+		{
+
+			"label": "run the makefile",
+			"type": "shell",
+			"command": "make -C ${workspaceFolder}",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		}
+	],
+	"version": "2.0.0"
+}
+
+// {
+//     "tasks": [
+// 		{
+//             "label": "run the makefile",
+//             "type": "shell",
+//             "command": "cc",
+// 			"args": [
+// 				"-Wall",
+// 				"-Wextra",
+// 				"-Werror",
+// 				"-g",
+// 				"./src/libft/ft_isrepeated.c",
+// 			],
+//             "group": {
+//                 "kind": "build",
+//                 "isDefault": true,
+// 				"problemMatcher": "$gcc"
+//             }
+//         }
+// 	],
+//     "version": "2.0.0"
+// }
+
