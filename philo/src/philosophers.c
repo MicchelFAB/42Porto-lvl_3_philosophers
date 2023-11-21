@@ -6,7 +6,7 @@
 /*   By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 10:52:30 by mamaral-          #+#    #+#             */
-/*   Updated: 2023/11/21 11:15:07 by mamaral-         ###   ########.fr       */
+/*   Updated: 2023/11/21 11:54:19 by mamaral-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,47 @@
  * 
  */
 #include "philo.h"
+
+void	starvin_philo(t_philo *philo, struct timeval actual)
+{
+	long	time;
+
+	pthread_mutex_lock(&philo->p_dead);
+	if (*(philo->dead) == 0)
+	{
+		*(philo->dead) = 1;
+		pthread_mutex_unlock(&philo->fork[philo->id - 1]);
+		time = get_gap_of_time(actual, philo->common.begin);
+		printf("%ldms %d died\n", time, philo->id);
+	}
+	pthread_mutex_unlock(&philo->p_dead);
+}
+
+void	*waiter(void *guest)
+{
+	struct timeval	now;
+	t_philo			*philo;
+	long			time;
+
+	philo = (t_philo *)guest;
+	while (1)
+	{
+		if (philo->common.number_of_meals != -1
+			&& philo->meals >= philo->common.number_of_meals)
+		{
+			philo->meals = 1;
+			return (NULL);
+		}
+		gettimeofday(&now, NULL);
+		time = get_gap_of_time(now, philo->lst_meal);
+		if (time > philo->common.death_clock)
+		{
+			kill_philo(philo, now);
+			return (NULL);
+		}
+		waiting(philo, now, 1);
+	}
+}
 
 void *symposium(void *group)
 {
