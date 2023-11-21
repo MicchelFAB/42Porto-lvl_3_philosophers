@@ -51,3 +51,5 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+git@github.com:Daewoong-Jeon/42Seoul-subject.git
