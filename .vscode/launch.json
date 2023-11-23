@@ -5,11 +5,13 @@
       "name": "C/C++ Runner: Debug Session",
       "type": "cppdbg",
       "request": "launch",
-      "args": [],
+      "args": [
+		"1", "100", "100", "100"
+	  ],
       "stopAtEntry": false,
       "externalConsole": false,
-      "cwd": "/nfs/homes/mamaral-/Documents/42Cursus/Github/42Porto-lvl_3_philosophers/philo/src",
-      "program": "/nfs/homes/mamaral-/Documents/42Cursus/Github/42Porto-lvl_3_philosophers/philo/src/build/Debug/outDebug",
+      "cwd": "${workspaceFolder}/philo",
+      "program": "${workspaceFolder}/philo/philo",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
