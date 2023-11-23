@@ -6,7 +6,7 @@
 /*   By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 10:52:49 by mamaral-          #+#    #+#             */
-/*   Updated: 2023/11/21 09:16:56 by mamaral-         ###   ########.fr       */
+/*   Updated: 2023/11/22 12:34:45 by mamaral-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ typedef struct s_philo
 	int				eating;
 	int				meals;
 	int				*dead;
-	int				*alive_n;
+	int				*alive_guest;
 	struct timeval	lst_meal;
 	pthread_mutex_t	*fork;
 	pthread_mutex_t	p_dead;
@@ -45,6 +45,8 @@ typedef struct s_philo
 }					t_philo;
 
 int	ft_atoi_philo(char *str);
-
+void	clean_table(t_philo *group, t_common common);
+int queued(t_philo *philo, struct timeval start, long wait_time);
+long	elapsed_time(struct timeval a, struct timeval b);
 
 #endif

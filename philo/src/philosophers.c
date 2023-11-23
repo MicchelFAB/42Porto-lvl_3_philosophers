@@ -6,7 +6,7 @@
 /*   By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 10:52:30 by mamaral-          #+#    #+#             */
-/*   Updated: 2023/11/21 11:54:19 by mamaral-         ###   ########.fr       */
+/*   Updated: 2023/11/22 15:49:25 by mamaral-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,89 @@
  */
 #include "philo.h"
 
+int	contemplating_and_napping(t_philo *philo)
+{
+	struct timeval	actual;
+	long			this_moment;
+
+	gettimeofday(&actual, NULL);
+	this_moment = elapsed_time(actual, philo->common.begin);
+	if (*(philo->dead) == 1 || philo->meals == 1)
+		return (-1);
+	printf("%3ldms %d is sleeping\n", this_moment, philo->id + 1);
+	if (queued(philo, actual, philo->common.sleeping_time) == -1)
+		return (-1);
+	gettimeofday(&actual, NULL);
+	this_moment = elapsed_time(actual, philo->common.begin);
+	if (*(philo->dead) == 1 || philo->meals == 1)
+		return (-1);
+	printf("%3ldms %d is thinking\n", this_moment, philo->id + 1);
+	return (0);
+}
+
+int	munching(t_philo *philo)
+{
+	struct timeval	actual;
+	long			this_moment;
+
+	gettimeofday(&actual, NULL);
+	this_moment = elapsed_time(actual, philo->common.begin);
+	if (*(philo->dead) == 1 || philo->meals == 1)
+		return (-1);
+	printf("%3ldms %d has taken a fork\n", this_moment, philo->id + 1);
+	gettimeofday(&actual, NULL);
+	this_moment = elapsed_time(actual, philo->common.begin);
+	if (*(philo->dead) == 1 || philo->meals == 1)
+		return (-1);
+	philo->lst_meal = actual;
+	printf("%3ldms %d is eating\n", this_moment, philo->id + 1);
+	(philo->eating)++;
+	if (queued(philo, actual, philo->common.eat_delay) == -1)
+		return (-1);
+	return (0);
+}
+
+int	pick_fork(t_philo *philo, pthread_mutex_t *r_hand, pthread_mutex_t *l_hand)
+{
+	if (r_hand == l_hand)
+		while (1)
+			if (*(philo->dead) == 1)
+				return (-1);
+	pthread_mutex_lock(r_hand);
+	pthread_mutex_lock(l_hand);
+	return (0);
+}
+void	release_fork(pthread_mutex_t *r_hand, pthread_mutex_t *l_hand)
+{
+	pthread_mutex_unlock(r_hand);
+	pthread_mutex_unlock(l_hand);
+}
+int	serving(t_philo *philo)
+{
+	int	num_of_philo;
+
+	num_of_philo = philo->common.philo_on_table;
+	if (pick_fork(philo, &philo->fork[philo->id],
+			&philo->fork[(philo->id + 1) % num_of_philo]) == -1)
+		return (-1);
+	if (munching(philo) == -1)
+	{
+		release_fork(&philo->fork[philo->id],
+			&philo->fork[(philo->id + 1) % num_of_philo]);
+		return (-1);
+	}
+	release_fork(&philo->fork[philo->id],
+		&philo->fork[(philo->id + 1) % num_of_philo]);
+	if (contemplating_and_napping(philo) == -1)
+		return (-1);
+	return (0);
+}
+
+long	elapsed_time(struct timeval a, struct timeval b)
+{
+	return (((a.tv_sec - b.tv_sec) * 1000000 + a.tv_usec - b.tv_usec) / 1000);
+}
+
 void	starvin_philo(t_philo *philo, struct timeval actual)
 {
 	long	time;
@@ -31,9 +114,9 @@ void	starvin_philo(t_philo *philo, struct timeval actual)
 	if (*(philo->dead) == 0)
 	{
 		*(philo->dead) = 1;
-		pthread_mutex_unlock(&philo->fork[philo->id - 1]);
-		time = get_gap_of_time(actual, philo->common.begin);
-		printf("%ldms %d died\n", time, philo->id);
+		pthread_mutex_unlock(&philo->fork[philo->id]);
+		time = elapsed_time(actual, philo->common.begin);
+		printf("%3ldms %d died\n", time, philo->id + 1);
 	}
 	pthread_mutex_unlock(&philo->p_dead);
 }
@@ -47,20 +130,19 @@ void	*waiter(void *guest)
 	philo = (t_philo *)guest;
 	while (1)
 	{
-		if (philo->common.number_of_meals != -1
-			&& philo->meals >= philo->common.number_of_meals)
+		if (philo->common.number_of_meals != -1	&& philo->eating >= philo->common.number_of_meals)
 		{
 			philo->meals = 1;
 			return (NULL);
 		}
 		gettimeofday(&now, NULL);
-		time = get_gap_of_time(now, philo->lst_meal);
+		time = elapsed_time(now, philo->lst_meal);
 		if (time > philo->common.death_clock)
 		{
-			kill_philo(philo, now);
+			starvin_philo(philo, now);
 			return (NULL);
 		}
-		waiting(philo, now, 1);
+		queued(philo, now, 1);
 	}
 }
 
@@ -70,41 +152,40 @@ void *symposium(void *group)
 	pthread_t	monitoring;
 
 	philo = (t_philo *)group;
-	pthread_create(&monitoring, NULL, monitor, philo);
+	pthread_create(&monitoring, NULL, waiter, philo);
 	if(philo->id % 2 == 0)
-		waiting(philo, philo->common.begin, philo->common.eat_delay / 2);
+		queued(philo, philo->common.begin, philo->common.eat_delay / 2);
 	while (1)
 	{
-		if (routine(philo) == -1)
+		if (serving(philo) == -1)
 			return (NULL);
 		usleep(500);
 	}
 	pthread_join(monitoring, NULL);
 	return (NULL);
 }
-}
 
 int putting_the_cutlery(t_common silverware, t_philo **philo)
 {
 	pthread_mutex_t	*fork;
-	int				*ticket;
+	int				*invite;
 	int				i;
 	
 	fork = malloc(sizeof(pthread_mutex_t) * silverware.philo_on_table);
-	ticket = malloc(sizeof(int) * silverware.philo_on_table);
-	if (!fork || !ticket)
+	invite = malloc(sizeof(int) * silverware.philo_on_table);
+	if (!fork || !invite)
 		return (-1);
 	i = -1;
 	while (++i < silverware.philo_on_table)
 	{
 		pthread_mutex_init(&fork[i], NULL);
-		ticket[i] = 1;
+		invite[i] = 1;
 	}
 	i = -1;
 	while (++i < silverware.philo_on_table)
 	{
 		(*philo)[i].fork = fork;
-		(*philo)[i].alive_n = ticket;
+		(*philo)[i].alive_guest = invite;
 	}
 	return (0);
 
@@ -112,7 +193,7 @@ int putting_the_cutlery(t_common silverware, t_philo **philo)
 
 int putting_the_table(t_common setup, t_philo **philo)
 {
-	pthread_mutex_t	conf_res;
+	pthread_mutex_t	conflict_resolution;
 	int				i;
 	int				*dead;
 	
@@ -121,16 +202,16 @@ int putting_the_table(t_common setup, t_philo **philo)
 	if (!*philo || !dead)
 		return (-1);
 	*dead = 0;
-	pthread_mutex_init(&conf_res, NULL);
+	pthread_mutex_init(&conflict_resolution, NULL);
 	i = -1;
 	while (++i < setup.philo_on_table)
 	{
-		(*philo)[i].id = i + 1;
+		(*philo)[i].id = i;
 		(*philo)[i].eating = 0;
 		(*philo)[i].meals = 0;
 		(*philo)[i].dead = dead;
 		(*philo)[i].lst_meal = setup.begin;
-		(*philo)[i].p_dead = conf_res;
+		(*philo)[i].p_dead = conflict_resolution;
 		(*philo)[i].common = setup;
 	}
 	if(putting_the_cutlery(setup, philo) == -1)
@@ -142,10 +223,10 @@ int check_args(int ac, char **av, t_common *args)
 {
 	if (ac < 5 || ac > 6)
 		return (-1);
-	args->philo_on_table = ft_atoi(av[1]);
-	args->death_clock = ft_atoi(av[2]);
-	args->eat_delay = ft_atoi(av[3]);
-	args->sleeping_time = ft_atoi(av[4]);
+	args->philo_on_table = ft_atoi_philo(av[1]);
+	args->death_clock = ft_atoi_philo(av[2]);
+	args->eat_delay = ft_atoi_philo(av[3]);
+	args->sleeping_time = ft_atoi_philo(av[4]);
 	if(args->philo_on_table == -1 || args->death_clock == -1
 		|| args->eat_delay == -1 || args->sleeping_time == -1)
 		return (-1);
@@ -153,7 +234,7 @@ int check_args(int ac, char **av, t_common *args)
 		args->number_of_meals = -1;
 	else
 	{
-		args->number_of_meals = ft_atoi(av[5]);
+		args->number_of_meals = ft_atoi_philo(av[5]);
 		if (args->number_of_meals == -1)
 			return (-1);
 	}
@@ -161,28 +242,34 @@ int check_args(int ac, char **av, t_common *args)
 	return (0);
 }
 
-int main(int ac, char **av)
+int	start_event(t_philo *visitor, t_common data)
 {
 	int			i;
 	int			status;
+	
+	i = -1;
+	while (++i < data.philo_on_table)
+	{
+		status = pthread_create(&visitor[i].p_thread, NULL, symposium, &visitor[i]);
+		if (status < 0)
+		{
+			clean_table(visitor, data);
+			return (-1);
+		}
+	}
+	return (0);
+}
+int main(int ac, char **av)
+{
 	t_philo		*philo;
 	t_common	common;
 	
-	i = -1;
 	if (check_args(ac, av, &common) == -1)
 		return (printf("Error: Invalid arguments.\n"));
 	if (putting_the_table(common, &philo) == -1)
 		return (printf("Error: Failed to put the table.\n"));
-	while (++i < common.philo_on_table)
-	{
-		status = pthread_create(&philo[i].p_thread, NULL, symposium, &philo[i]);
-		if (status < 0)
-		{
-			clean_table(philo, common);
-			printf("Error: Failed to create thread.\n");
-			return (-1);
-		}
-	}
+	if (start_event(philo, common) == -1)
+		return(printf("Error: Failed to create thread.\n"));
 	clean_table(philo, common);
 	return (0);
 }
