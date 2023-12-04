@@ -4,7 +4,7 @@
 
 			"label": "run the makefile",
 			"type": "shell",
-			"command": "make -C ${workspaceFolder}/philo",
+			"command": "make vg -C ${workspaceFolder}/philo",
 			"group": {
 				"kind": "build",
 				"isDefault": true

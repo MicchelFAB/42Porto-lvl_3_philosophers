@@ -6,7 +6,7 @@
 /*   By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 15:39:26 by mamaral-          #+#    #+#             */
-/*   Updated: 2023/11/22 12:19:10 by mamaral-         ###   ########.fr       */
+/*   Updated: 2023/12/04 15:17:25 by mamaral-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ int queued(t_philo *philo, struct timeval start, long wait_time)
 					start.tv_usec);
 		if(time >= wait_time * 1000)
 			break;
-		usleep(500);
+		usleep(100);
 	}
 	return (0);
 }
@@ -64,4 +64,36 @@ void	clean_table(t_philo *group, t_common common)
 	free(group[0].fork);
 	free(group[0].alive_guest);
 	free(group);
+}
+
+void	checking_table(t_philo *philo, const char *status)
+{
+	long long	time;
+	struct timeval now;
+	
+	gettimeofday(&now, NULL);
+	pthread_mutex_lock(&philo->common->print_status);
+	if (!free_table(philo, NO))
+	{
+		time = elapsed_time(now, philo->common->begin);
+		printf("%lld %d %s\n", time, philo->id, status);
+	}
+	pthread_mutex_unlock(&philo->common->print_status);
+}
+
+void	queued(t_philo *philo, long long end)
+{
+	long long	begin;
+
+	begin = get_now();
+	while (!free_table(philo, NO) && (get_now() - begin) < end)
+		usleep(100);
+}
+
+long long	get_now(void)
+{
+	struct timeval	timeval;
+
+	gettimeofday(&timeval, NULL);
+	return ((timeval.tv_sec * 1000) + (timeval.tv_usec / 1000));
 }

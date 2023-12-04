@@ -6,7 +6,7 @@
 #    By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/20 11:23:00 by mamaral-          #+#    #+#              #
-#    Updated: 2023/11/22 13:03:35 by mamaral-         ###   ########.fr        #
+#    Updated: 2023/11/29 09:12:02 by mamaral-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,9 +15,7 @@ RM = rm -rf
 
 NAME = philo
 
-CFLAGS = -Wall -Wextra -Werror
-THREAD = -lpthread
-DEBUG = -g -fsanitize=thread
+CFLAGS = -Wall -Wextra -Werror -pthread -g -fsanitize=thread 
 
 INCLUDES = -I ./inc/
 SRC_DIR = ./src
@@ -32,10 +30,10 @@ OBJS = $(SRCS:%.c=%.o)
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	$(CC) $(CFLAGS) $(DEBUG) $(INCLUDES) $(THREAD) $(OBJS) -o $(NAME)
+	$(CC) $(CFLAGS) $(INCLUDES) $(OBJS) -o $(NAME)
 
 %.o: %.c
-	$(CC) $(CFLAGS) $(DEBUG) -c $< -o $@ $(INCLUDES)
+	$(CC) $(CFLAGS) -c $< -o $@ $(INCLUDES)
 	
 clean: 
 	$(RM) $(OBJS)
@@ -44,5 +42,8 @@ fclean: clean
 	$(RM) $(NAME)
 
 re : fclean all
+
+vg: override CFLAGS := -Wall -Werror -Wextra -pthread -g
+vg: fclean $(NAME)
 
 .PHONY: all clean fclean re
