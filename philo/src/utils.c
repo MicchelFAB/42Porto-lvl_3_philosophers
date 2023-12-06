@@ -6,15 +6,15 @@
 /*   By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 15:39:26 by mamaral-          #+#    #+#             */
-/*   Updated: 2023/12/04 17:12:52 by mamaral-         ###   ########.fr       */
+/*   Updated: 2023/12/06 14:59:21 by mamaral-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int ft_atoi_philo(char *str)
+int	ft_atoi_philo(char *str)
 {
-	int r;
+	int	r;
 
 	r = 0;
 	if (str == NULL || str[0] == '-')
@@ -50,7 +50,7 @@ int ft_atoi_philo(char *str)
 
 void	clean_table(t_common *common)
 {
-	int i;
+	int	i;
 
 	i = -1;
 	while (++i < common->philo_on_table)
@@ -73,18 +73,21 @@ long	elapsed_time(struct timeval a, struct timeval b)
 void	checking_table(t_philo *philo, const char *status)
 {
 	long long	time;
-	struct timeval now;
-	
-	gettimeofday(&now, NULL);
+
 	pthread_mutex_lock(&philo->common->print_status);
 	if (!remove_plates(philo, NO))
 	{
-		time = elapsed_time(now, philo->common->begin);
+		time = get_now() - philo->common->begin;
+		printf("%lld %d %s\n", time, philo->id, status);
+	}
+	if (status[0] == 'A')
+		printf("%s\n", "Number of meals reached!");
+	else if (status[0] == 'd')
+	{
+		time = get_now() - philo->common->begin;
 		printf("%lld %d %s\n", time, philo->id, status);
 	}
 	pthread_mutex_unlock(&philo->common->print_status);
-	if (status[0] == 'A')
-		printf("%s\n", "All philosophers ate enough!");
 }
 
 void	queued(t_philo *philo, long long end)
