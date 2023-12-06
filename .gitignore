@@ -48,7 +48,7 @@
 .tmp_versions/
 philosophers/
 modules.order
-Module.symvers
+Module.symver
 Mkfile.old
 dkms.conf
 philo/LazyPhilosophersTester/

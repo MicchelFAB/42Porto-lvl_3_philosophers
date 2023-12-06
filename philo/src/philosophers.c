@@ -6,7 +6,7 @@
 /*   By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/04 14:06:19 by mamaral-          #+#    #+#             */
-/*   Updated: 2023/12/04 15:36:43 by mamaral-         ###   ########.fr       */
+/*   Updated: 2023/12/04 17:21:35 by mamaral-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,16 +15,16 @@
 void	serving(t_philo *philo)
 {
 	pthread_mutex_lock(&philo->l_fork);
-	pthread_mutex_lock(&philo->r_fork);
+	pthread_mutex_lock(philo->r_fork);
 	checking_table(philo, "has taken a fork");
 	checking_table(philo, "is eating");
-	queued(philo, philo->table->time_to_eat);
-	pthread_mutex_lock(&philo->table->eat_padlock);
-	philo->eat_count++;
-	philo->last_eat = now();
-	pthread_mutex_unlock(&philo->table->eat_padlock);
-	pthread_mutex_unlock(&philo->table->fork_padlock[philo->r_fork]);
-	pthread_mutex_unlock(&philo->table->fork_padlock[philo->l_fork]);
+	queued(philo, philo->common->eat_delay);
+	pthread_mutex_lock(&philo->common->chew);
+	philo->eating++;
+	gettimeofday(&philo->lst_meal, NULL);
+	pthread_mutex_unlock(&philo->common->chew);
+	pthread_mutex_unlock(philo->r_fork);
+	pthread_mutex_unlock(&philo->l_fork);
 }
 
 int	remove_plates(t_philo *philo, int dinner_end)
@@ -44,9 +44,9 @@ int	remove_plates(t_philo *philo, int dinner_end)
 void table_for_one(t_common *common)
 {
 	checking_table(&common->philo[0], "has taken a fork");
-	check_clock(&common->philo[0], common->death_clock);
+	queued(&common->philo[0], common->death_clock);
 	checking_table(&common->philo[0], "is dead");
-	return(remove_plates(&common->philo[0], YES));
+	remove_plates(&common->philo[0], YES);
 }
 
 void *symposium(void *group)
@@ -59,7 +59,10 @@ void *symposium(void *group)
 	while (1)
 	{
 		if (philo->common->philo_on_table == 1)
-			return (table_for_one(philo->common));
+		{
+			table_for_one(philo->common);
+			return (0);
+		}
 		if (remove_plates(philo, NO))
 			return (0);
 		serving(philo);
@@ -97,14 +100,14 @@ int putting_the_cutlery(t_common *silverware)
 		return (-1);
 	while (++i < silverware->philo_on_table)
 	{
-		if (pthread_mutex_init(&silverware->fork_hold, NULL));
+		if (pthread_mutex_init(silverware->fork_hold, NULL))
 			return (-1);
 	}
-	if (pthread_mutex_init(&silverware->print_status, NULL));
+	if (pthread_mutex_init(&silverware->print_status, NULL))
 		return (-1);
-	if (pthread_mutex_init(&silverware->chew, NULL));
+	if (pthread_mutex_init(&silverware->chew, NULL))
 		return (-1);
-	if (pthread_mutex_init(&silverware->session_end, NULL));
+	if (pthread_mutex_init(&silverware->session_end, NULL))
 		return (-1);
 	return (0);
 }
@@ -154,8 +157,57 @@ int check_args(int ac, char **av, t_common *args)
 		if (args->number_of_meals == -1)
 			return (-1);
 	}
+	args->finish_flag = 0;
 	args->tummy_hurts = 0;
 	return (0);
+}
+
+int table_service(t_philo *philo)
+{
+	struct timeval	now;
+	
+	gettimeofday(&now, NULL);
+	pthread_mutex_lock(&philo->common->chew);
+	if(elapsed_time(now, philo->lst_meal) >= philo->common->death_clock)
+	{
+		checking_table(philo, "is dead");
+		remove_plates(philo, YES);
+		pthread_mutex_unlock(&philo->common->chew);
+		return (1);
+	}
+	else if(philo->common->number_of_meals > 0 && philo->eating >= philo->common->number_of_meals)
+	{
+		philo->common->tummy_hurts++;
+		if (philo->common->tummy_hurts >= philo->common->philo_on_table)
+		{
+			remove_plates(philo, YES);
+			checking_table(philo, "A");
+			pthread_mutex_unlock(&philo->common->chew);
+			return (1);
+		}
+		pthread_mutex_unlock(&philo->common->chew);
+	}
+	return (0);
+}
+
+void waiter(t_common *guests)
+{
+	int	i;
+	int	meals;
+
+	meals = 1;
+	while (meals)
+	{
+		i = -1;
+		guests->tummy_hurts = 0;
+		while (++i < guests->philo_on_table)
+		{
+			if (meals && table_service(&guests->philo[i]))
+				meals = 0;
+		}
+		usleep(10);
+	}
+	clean_table(guests);
 }
 
 int	main(int ac, char **av)
@@ -169,5 +221,4 @@ int	main(int ac, char **av)
 	if (start_event(&common) == -1)
 		return(printf("Error: Failed to create thread.\n"));
 	waiter(&common);
-	start_dinner_monitor(&table);
 }

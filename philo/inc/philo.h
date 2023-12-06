@@ -6,7 +6,7 @@
 /*   By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 10:52:49 by mamaral-          #+#    #+#             */
-/*   Updated: 2023/12/04 15:04:09 by mamaral-         ###   ########.fr       */
+/*   Updated: 2023/12/04 17:13:03 by mamaral-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,10 +52,14 @@ typedef struct s_common
 }					t_common;
 
 int	ft_atoi_philo(char *str);
-void	clean_table(t_philo *group, t_common common);
-int queued(t_philo *philo, struct timeval start, long wait_time);
+// void	clean_table(t_philo *group, t_common common);
+void	clean_table(t_common *common);
+void	queued(t_philo *philo, long long end);
+// int queued(t_philo *philo, struct timeval start, long wait_time);
 long	elapsed_time(struct timeval a, struct timeval b);
 void *symposium(void *group);
-void	checking_table(t_philo *philo, const char *status)
+void	checking_table(t_philo *philo, const char *status);
+long long	get_now(void);
+int	remove_plates(t_philo *philo, int dinner_end);
 
 #endif
