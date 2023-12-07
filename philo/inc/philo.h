@@ -6,7 +6,7 @@
 /*   By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 10:52:49 by mamaral-          #+#    #+#             */
-/*   Updated: 2023/12/06 15:04:08 by mamaral-         ###   ########.fr       */
+/*   Updated: 2023/12/07 18:49:15 by mamaral-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,11 +27,10 @@ typedef struct s_philo
 {
 	int				id;
 	int				eating;
-	int				r_fork;
-	int				l_fork;
+	int				fork[2];
 	long long		lst_meal;
-	struct s_common	*common;
 	pthread_t		p_thread;
+	struct s_common	*common;
 }					t_philo;
 
 typedef struct s_common
@@ -44,20 +43,24 @@ typedef struct s_common
 	int				tummy_hurts;
 	int				finish_flag;
 	long long		begin;
-	t_philo			*philo;
 	pthread_mutex_t	*fork_hold;
 	pthread_mutex_t	print_status;
 	pthread_mutex_t	chew;
 	pthread_mutex_t	session_end;
+	t_philo			*philo;
 }					t_common;
 
 int			ft_atoi_philo(char *str);
 void		clean_table(t_common *common);
-void		queued(t_philo *philo, long long end);
-long		elapsed_time(struct timeval a, struct timeval b);
+long long	queued(t_philo *philo, long long end);
 void		*symposium(void *group);
 void		checking_table(t_philo *philo, const char *status);
 long long	get_now(void);
 int			remove_plates(t_philo *philo, int dinner_end);
+int			check_args(int ac, char **av, t_common *args);
+int			putting_the_table(t_common *setup);
+int			putting_the_cutlery(t_common *silverware);
+int			start_event(t_common *data);
+void		waiter(t_common *guests);
 
 #endif

@@ -6,7 +6,7 @@
 #    By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/20 11:23:00 by mamaral-          #+#    #+#              #
-#    Updated: 2023/12/06 14:50:01 by mamaral-         ###   ########.fr        #
+#    Updated: 2023/12/07 13:26:02 by mamaral-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,7 @@ CFLAGS = -Wall -Wextra -Werror -pthread -g #-fsanitize=thread
 INCLUDES = -I ./inc/
 SRC_DIR = ./src
 
-SRCS = philosophers utils
+SRCS = philosophers utils init
 
 SRCS := $(SRCS:%=$(SRC_DIR)/%.c)
 

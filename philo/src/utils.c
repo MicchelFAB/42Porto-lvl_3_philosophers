@@ -6,7 +6,7 @@
 /*   By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 15:39:26 by mamaral-          #+#    #+#             */
-/*   Updated: 2023/12/06 14:59:21 by mamaral-         ###   ########.fr       */
+/*   Updated: 2023/12/07 15:14:58 by mamaral-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,28 +25,9 @@ int	ft_atoi_philo(char *str)
 		str++;
 	}
 	if (*str != '\0')
-		return (-1); 
+		return (-1);
 	return (r);
 }
-
-// int queued(t_philo *philo, struct timeval start, long wait_time)
-// {
-// 	struct timeval now;
-// 	long time;
-
-// 	while (1)
-// 	{
-// 		if (*(philo->dead) == 1 || philo->meals == 1)
-// 			return (-1);
-// 		gettimeofday(&now, NULL);
-// 		time = ((now.tv_sec - start.tv_sec) * 1000000 + now.tv_usec - 
-// 					start.tv_usec);
-// 		if(time >= wait_time * 1000)
-// 			break;
-// 		usleep(100);
-// 	}
-// 	return (0);
-// }
 
 void	clean_table(t_common *common)
 {
@@ -65,11 +46,6 @@ void	clean_table(t_common *common)
 	pthread_mutex_destroy(&common->session_end);
 }
 
-long	elapsed_time(struct timeval a, struct timeval b)
-{
-	return (((a.tv_sec - b.tv_sec) * 1000000 + a.tv_usec - b.tv_usec) / 1000);
-}
-
 void	checking_table(t_philo *philo, const char *status)
 {
 	long long	time;
@@ -77,32 +53,52 @@ void	checking_table(t_philo *philo, const char *status)
 	pthread_mutex_lock(&philo->common->print_status);
 	if (!remove_plates(philo, NO))
 	{
-		time = get_now() - philo->common->begin;
+		time = queued(philo, -1) - philo->common->begin;
 		printf("%lld %d %s\n", time, philo->id, status);
 	}
 	if (status[0] == 'A')
 		printf("%s\n", "Number of meals reached!");
 	else if (status[0] == 'd')
 	{
-		time = get_now() - philo->common->begin;
+		time = queued(philo, -1) - philo->common->begin;
 		printf("%lld %d %s\n", time, philo->id, status);
 	}
 	pthread_mutex_unlock(&philo->common->print_status);
 }
 
-void	queued(t_philo *philo, long long end)
+long long	queued(t_philo *philo, long long end)
 {
-	long long	begin;
-
-	begin = get_now();
-	while (!remove_plates(philo, NO) && (get_now() - begin) < end)
-		usleep(100);
-}
-
-long long	get_now(void)
-{
+	long long		begin;
+	long long		now;
 	struct timeval	timeval;
 
+	now = 0;
 	gettimeofday(&timeval, NULL);
-	return ((timeval.tv_sec * 1000) + (timeval.tv_usec / 1000));
+	begin = (timeval.tv_sec * 1000) + (timeval.tv_usec / 1000);
+	if (end == -1)
+		return (begin);
+	else
+	{
+		while (!remove_plates(philo, NO) && (now - begin) < end)
+		{
+			gettimeofday(&timeval, NULL);
+			now = (timeval.tv_sec * 1000) + (timeval.tv_usec / 1000);
+			usleep(100);
+		}
+	}
+	return (0);
+}
+
+int	remove_plates(t_philo *philo, int dinner_end)
+{
+	pthread_mutex_lock(&philo->common->session_end);
+	if (dinner_end || philo->common->finish_flag)
+	{
+		if (dinner_end)
+			philo->common->finish_flag = 1;
+		pthread_mutex_unlock(&philo->common->session_end);
+		return (1);
+	}
+	pthread_mutex_unlock(&philo->common->session_end);
+	return (0);
 }
