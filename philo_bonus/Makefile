@@ -6,21 +6,21 @@
 #    By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/20 11:23:00 by mamaral-          #+#    #+#              #
-#    Updated: 2023/12/07 18:59:29 by mamaral-         ###   ########.fr        #
+#    Updated: 2023/12/13 15:48:52 by mamaral-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CC = cc
 RM = rm -rf
 
-NAME = philo
+NAME = philo_bonus
 
-CFLAGS = -Wall -Wextra -Werror -pthread -g -fsanitize=address
+CFLAGS = -Wall -Wextra -Werror -pthread -g -fsanitize=thread
 
 INCLUDES = -I ./inc/
 SRC_DIR = ./src
 
-SRCS = philosophers utils init
+SRCS = philosophers_b utils_b init_b minilib
 
 SRCS := $(SRCS:%=$(SRC_DIR)/%.c)
 

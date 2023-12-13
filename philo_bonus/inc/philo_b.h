@@ -1,62 +1,70 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   philo.h                                            :+:      :+:    :+:   */
+/*   philo_b.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 10:52:49 by mamaral-          #+#    #+#             */
-/*   Updated: 2023/12/12 18:20:49 by mamaral-         ###   ########.fr       */
+/*   Updated: 2023/12/13 15:30:18 by mamaral-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PHILO_H
-# define PHILO_H
+#ifndef PHILO_B_H
+# define PHILO_B_H
 
-# include <pthread.h>
-# include <stdio.h>
-# include <stdlib.h>
 # include <unistd.h>
-# include <sys/types.h>
+# include <stdlib.h>
+# include <string.h>
+# include <signal.h>
 # include <sys/time.h>
+# include <fcntl.h>
+# include <pthread.h>
+# include <semaphore.h>
+# include <stdio.h>
 
 # define YES 1
 # define NO 0
 
 typedef struct s_philo
 {
-	int				id;
-	int				eating;
-	int				fork[2];
-	long long		lst_meal;
 	pthread_t		p_thread;
+	int				id;
+	int				id_next_philo;
+	int				eating;
+	long long		time_lst_meal;
+	sem_t			*lst_meal;
 	struct s_common	*common;
 }					t_philo;
 
 typedef struct s_common
 {
 	int				philo_on_table;
-	int				death_clock;
-	int				eat_delay;
-	int				sleeping_time;
 	int				nbr_of_meals;
-	int				tummy_hurts;
-	int				finish_flag;
 	long long		begin;
-	pthread_mutex_t	*fork_hold;
-	pthread_mutex_t	print_status;
-	pthread_mutex_t	chew;
-	pthread_mutex_t	session_end;
+	long long		death_clock;
+	long long		eat_delay;
+	long long		sleeping_time;
+	sem_t	*forks;
+	sem_t	*print_status;
+	sem_t	*chew;
+	sem_t	*session_end;
 	t_philo			*philo;
+	// int				tummy_hurts;
+	// int				finish_flag;
 }					t_common;
 
-int			ft_atoi_philo(char *str);
+unsigned long			ft_atol_philo(char *str);
+char					*ft_itoa_philo(int nbr);
+size_t ft_strlen(const char *s);
+size_t	ft_strlcpy(char *dst, const char *src, size_t size);
+
 void		clean_table(t_common *common);
-long long	queued(t_philo *philo, long long end);
+// long long	queued(t_philo *philo, long long end);
 void		*symposium(void *group);
 void		checking_table(t_philo *philo, const char *status);
 long long	get_now(void);
-int			remove_plates(t_philo *philo, int dinner_end);
+// int			remove_plates(t_philo *philo, int dinner_end);
 int			check_args(int ac, char **av, t_common *args);
 int			putting_the_table(t_common *setup);
 int			putting_the_cutlery(t_common *silverware);

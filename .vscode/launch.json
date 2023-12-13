@@ -10,8 +10,8 @@
 	  ],
       "stopAtEntry": false,
       "externalConsole": false,
-      "cwd": "${workspaceFolder}/philo",
-      "program": "${workspaceFolder}/philo/philo",
+      "cwd": "${workspaceFolder}/philo_bonus",
+      "program": "${workspaceFolder}/philo_bonus/philo_bonus",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

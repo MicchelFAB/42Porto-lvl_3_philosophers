@@ -6,7 +6,7 @@
 /*   By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/04 14:06:19 by mamaral-          #+#    #+#             */
-/*   Updated: 2023/12/07 14:01:24 by mamaral-         ###   ########.fr       */
+/*   Updated: 2023/12/12 18:20:49 by mamaral-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ void	*symposium(void *group)
 		if (philo->common->philo_on_table == 1)
 			return (table_for_one(philo->common));
 		serving(philo);
-		if (philo->eating == philo->common->number_of_meals)
+		if (philo->eating == philo->common->nbr_of_meals)
 			return (0);
 		if (remove_plates(philo, NO))
 			return (0);
@@ -84,8 +84,8 @@ int	table_service(t_philo *philo)
 		pthread_mutex_unlock(&philo->common->chew);
 		return (1);
 	}
-	else if (philo->common->number_of_meals > 0 && philo->eating >= philo
-		->common->number_of_meals)
+	else if (philo->common->nbr_of_meals > 0 && philo->eating >= philo
+		->common->nbr_of_meals)
 	{
 		philo->common->tummy_hurts++;
 		if (philo->common->tummy_hurts >= philo->common->philo_on_table)

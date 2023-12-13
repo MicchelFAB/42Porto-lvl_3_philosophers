@@ -6,7 +6,7 @@
 /*   By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/07 13:06:51 by mamaral-          #+#    #+#             */
-/*   Updated: 2023/12/07 18:38:43 by mamaral-         ###   ########.fr       */
+/*   Updated: 2023/12/12 18:20:49 by mamaral-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ int	main(int ac, char **av)
 	if (start_event(&common) == -1)
 		return (printf("Error: Failed to create thread.\n"));
 	waiter(&common);
+	return (0);
 }
 
 int	check_args(int ac, char **av, t_common *args)
@@ -37,11 +38,11 @@ int	check_args(int ac, char **av, t_common *args)
 		== -1 || args->sleeping_time == -1)
 		return (-1);
 	if (!av[5])
-		args->number_of_meals = -1;
+		args->nbr_of_meals = -1;
 	else
 	{
-		args->number_of_meals = ft_atoi_philo(av[5]);
-		if (args->number_of_meals == -1)
+		args->nbr_of_meals = ft_atoi_philo(av[5]);
+		if (args->nbr_of_meals == -1)
 			return (-1);
 	}
 	args->finish_flag = 0;
