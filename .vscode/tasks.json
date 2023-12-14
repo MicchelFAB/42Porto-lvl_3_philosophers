@@ -2,7 +2,7 @@
 	"tasks": [
 		{
 
-			"label": "run the makefile",
+			"label": "make",
 			"type": "shell",
 			"command": "make vg -C ${workspaceFolder}/philo_bonus",
 			"group": {

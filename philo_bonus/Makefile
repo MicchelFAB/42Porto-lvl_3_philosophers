@@ -6,7 +6,7 @@
 #    By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/20 11:23:00 by mamaral-          #+#    #+#              #
-#    Updated: 2023/12/13 15:48:52 by mamaral-         ###   ########.fr        #
+#    Updated: 2023/12/14 19:48:20 by mamaral-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,12 +20,11 @@ CFLAGS = -Wall -Wextra -Werror -pthread -g -fsanitize=thread
 INCLUDES = -I ./inc/
 SRC_DIR = ./src
 
-SRCS = philosophers_b utils_b init_b minilib
+SRCS =  philosophers_b utils_b init_b minilib tbl_crew
 
 SRCS := $(SRCS:%=$(SRC_DIR)/%.c)
 
 OBJS = $(SRCS:%.c=%.o)
-
 
 all: $(NAME)
 

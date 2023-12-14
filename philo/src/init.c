@@ -6,7 +6,7 @@
 /*   By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/07 13:06:51 by mamaral-          #+#    #+#             */
-/*   Updated: 2023/12/12 18:20:49 by mamaral-         ###   ########.fr       */
+/*   Updated: 2023/12/14 11:31:06 by mamaral-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ int	check_args(int ac, char **av, t_common *args)
 	args->death_clock = ft_atoi_philo(av[2]);
 	args->eat_delay = ft_atoi_philo(av[3]);
 	args->sleeping_time = ft_atoi_philo(av[4]);
-	if (args->philo_on_table == -1 || args->death_clock == -1 || args->eat_delay
+	if (args->philo_on_table < 1 || args->death_clock == -1 || args->eat_delay
 		== -1 || args->sleeping_time == -1)
 		return (-1);
 	if (!av[5])

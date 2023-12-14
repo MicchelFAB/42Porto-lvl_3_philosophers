@@ -6,7 +6,7 @@
 /*   By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/13 09:51:55 by mamaral-          #+#    #+#             */
-/*   Updated: 2023/12/13 15:39:15 by mamaral-         ###   ########.fr       */
+/*   Updated: 2023/12/14 13:37:14 by mamaral-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,6 @@ size_t ft_strlen(const char *s)
 	return (i);
 }
 
-//ft_strlcpy
 size_t	ft_strlcpy(char *dst, const char *src, size_t size)
 {
 	size_t	i;
@@ -86,4 +85,10 @@ size_t	ft_strlcpy(char *dst, const char *src, size_t size)
 	while (src[i])
 		i++;
 	return (i);
+}
+
+int ft_puterr(char *str)
+{
+	write(2, str, ft_strlen(str));
+	return (-1);
 }
