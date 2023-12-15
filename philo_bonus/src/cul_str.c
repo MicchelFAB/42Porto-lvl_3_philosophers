@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   minilib.c                                          :+:      :+:    :+:   */
+/*   cul_str.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/13 09:51:55 by mamaral-          #+#    #+#             */
-/*   Updated: 2023/12/14 13:37:14 by mamaral-         ###   ########.fr       */
+/*   Updated: 2023/12/15 13:38:02 by mamaral-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,9 +56,9 @@ char	*ft_itoa_philo(int nbr)
 	return (s);
 }
 
-size_t ft_strlen(const char *s)
+size_t	ft_strlen(const char *s)
 {
-	size_t i;
+	size_t	i;
 
 	i = 0;
 	while (s[i])
@@ -87,7 +87,7 @@ size_t	ft_strlcpy(char *dst, const char *src, size_t size)
 	return (i);
 }
 
-int ft_puterr(char *str)
+int	ft_puterr(char *str)
 {
 	write(2, str, ft_strlen(str));
 	return (-1);

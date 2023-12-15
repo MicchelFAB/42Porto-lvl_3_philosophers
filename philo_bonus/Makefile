@@ -6,7 +6,7 @@
 #    By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/20 11:23:00 by mamaral-          #+#    #+#              #
-#    Updated: 2023/12/14 19:48:20 by mamaral-         ###   ########.fr        #
+#    Updated: 2023/12/15 13:28:08 by mamaral-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,12 +15,12 @@ RM = rm -rf
 
 NAME = philo_bonus
 
-CFLAGS = -Wall -Wextra -Werror -pthread -g -fsanitize=thread
+CFLAGS = -Wall -Wextra -Werror -pthread -g
 
 INCLUDES = -I ./inc/
 SRC_DIR = ./src
 
-SRCS =  philosophers_b utils_b init_b minilib tbl_crew
+SRCS =  philo_b cul_str gastr_act tbl_gov tbl_serv
 
 SRCS := $(SRCS:%=$(SRC_DIR)/%.c)
 
@@ -42,7 +42,7 @@ fclean: clean
 
 re : fclean all
 
-vg: override CFLAGS := -Wall -Werror -Wextra -pthread -g
-vg: fclean $(NAME)
+err: override CFLAGS := -Wall -Werror -Wextra -pthread -g -fsanitize=thread
+err: fclean $(NAME)
 
 .PHONY: all clean fclean re

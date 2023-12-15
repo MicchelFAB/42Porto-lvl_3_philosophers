@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils_b.c                                          :+:      :+:    :+:   */
+/*   tbl_serv.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 15:39:26 by mamaral-          #+#    #+#             */
-/*   Updated: 2023/12/14 13:44:28 by mamaral-         ###   ########.fr       */
+/*   Updated: 2023/12/15 13:38:24 by mamaral-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,9 @@ long long	get_now(void)
 	return ((timeval.tv_sec * 1000) + (timeval.tv_usec / 1000));
 }
 
-void			ft_putnbr(long long n)
+void	ft_putnbr(long long n)
 {
-	char *str;
+	char	*str;
 
 	str = ft_itoa_philo(n);
 	write(1, str, ft_strlen(str));

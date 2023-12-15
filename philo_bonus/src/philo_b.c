@@ -1,21 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   init_b.c                                           :+:      :+:    :+:   */
+/*   philo_b.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/07 13:06:51 by mamaral-          #+#    #+#             */
-/*   Updated: 2023/12/14 19:49:43 by mamaral-         ###   ########.fr       */
+/*   Updated: 2023/12/15 13:38:13 by mamaral-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_b.h"
 
-int		main(int ac, char **av)
+int	main(int ac, char **av)
 {
 	t_common	common;
-	
+
 	if (check_args(ac, av, &common) == -1)
 		return (ft_puterr("Error: Invalid arguments.\n"));
 	if (putting_fancy_table(&common) == -1)
@@ -52,7 +52,7 @@ int	check_args(int ac, char **av, t_common *args)
 	return (0);
 }
 
-int		putting_fancy_table(t_common *common)
+int	putting_fancy_table(t_common *common)
 {
 	int		i;
 	int		err_flag;
@@ -66,6 +66,7 @@ int		putting_fancy_table(t_common *common)
 	while (++i < common->philo_on_table)
 	{
 		str = get_philo_name("/lst_meal", i);
+		sem_unlink(str);
 		common->philo[i].lst_meal = sem_open(str, O_CREAT | O_EXCL, 0644, 1);
 		free(str);
 		if (common->philo[i].lst_meal == SEM_FAILED)
@@ -79,12 +80,16 @@ int		putting_fancy_table(t_common *common)
 
 int	putting_fancy_cutlery(t_common *silver)
 {
-	silver->forks = sem_open("/forks", O_CREAT | O_EXCL, 0644, silver->philo_on_table);
+	sem_unlink("/forks");
+	sem_unlink("/print_status");
+	sem_unlink("/chew");
+	sem_unlink("/session_end");
+	silver->forks = sem_open("/forks", O_CREAT | O_EXCL, 0644,
+			silver->philo_on_table);
 	silver->print_status = sem_open("/print_status", O_CREAT | O_EXCL, 0644, 1);
 	silver->chew = sem_open("/chew", O_CREAT | O_EXCL,
 			0644, 0);
-	silver->session_end = sem_open("/session_end", O_CREAT | O_EXCL,
-			0644, 0);
+	silver->session_end = sem_open("/session_end", O_CREAT | O_EXCL, 0644, 0);
 	if (silver->forks == SEM_FAILED || silver->print_status == SEM_FAILED
 		|| silver->chew == SEM_FAILED || silver->session_end == SEM_FAILED)
 		return (1);

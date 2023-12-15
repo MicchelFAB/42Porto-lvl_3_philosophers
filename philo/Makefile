@@ -6,7 +6,7 @@
 #    By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/20 11:23:00 by mamaral-          #+#    #+#              #
-#    Updated: 2023/12/07 18:59:29 by mamaral-         ###   ########.fr        #
+#    Updated: 2023/12/15 12:12:50 by mamaral-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,7 +15,7 @@ RM = rm -rf
 
 NAME = philo
 
-CFLAGS = -Wall -Wextra -Werror -pthread -g -fsanitize=address
+CFLAGS = -Wall -Wextra -Werror -pthread -g
 
 INCLUDES = -I ./inc/
 SRC_DIR = ./src
@@ -43,7 +43,7 @@ fclean: clean
 
 re : fclean all
 
-vg: override CFLAGS := -Wall -Werror -Wextra -pthread -g
-vg: fclean $(NAME)
+err: override CFLAGS := -Wall -Werror -Wextra -pthread -g -fsanitize=thread
+err: fclean $(NAME)
 
 .PHONY: all clean fclean re

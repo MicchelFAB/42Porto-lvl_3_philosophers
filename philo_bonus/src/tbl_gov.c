@@ -1,17 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils_b.c                                          :+:      :+:    :+:   */
+/*   tbl_gov.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 15:39:26 by mamaral-          #+#    #+#             */
-/*   Updated: 2023/12/14 13:30:23 by mamaral-         ###   ########.fr       */
+/*   Updated: 2023/12/15 13:38:20 by mamaral-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_b.h"
-
 
 int	tbl_unavail(t_common *setup)
 {
@@ -22,7 +21,6 @@ int	tbl_unavail(t_common *setup)
 
 void	leaving_tbl(t_philo *philo, const char *str)
 {
-
 	sem_wait(philo->common->print_status);
 	if (*str == ' ')
 	{
@@ -36,11 +34,10 @@ void	leaving_tbl(t_philo *philo, const char *str)
 
 void	checking_table(t_philo *philo, const char *status)
 {
-	
 	sem_wait(philo->common->print_status);
 	ft_putnbr(get_now() - philo->common->begin);
 	write(1, "\t", 1);
-	ft_putnbr(philo->id + 1 );
+	ft_putnbr(philo->id + 1);
 	write(1, status, ft_strlen(status));
 	sem_post(philo->common->print_status);
 }

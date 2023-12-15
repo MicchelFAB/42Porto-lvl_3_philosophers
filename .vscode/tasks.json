@@ -4,7 +4,7 @@
 
 			"label": "make",
 			"type": "shell",
-			"command": "make vg -C ${workspaceFolder}/philo_bonus",
+			"command": "make err -C ${workspaceFolder}/philo_bonus",
 			"group": {
 				"kind": "build",
 				"isDefault": true

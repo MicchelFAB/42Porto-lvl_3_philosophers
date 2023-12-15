@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   philosophers_b.c                                   :+:      :+:    :+:   */
+/*   gastr_act.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/04 14:06:19 by mamaral-          #+#    #+#             */
-/*   Updated: 2023/12/14 13:26:45 by mamaral-         ###   ########.fr       */
+/*   Updated: 2023/12/15 13:38:08 by mamaral-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ void	serving(t_philo *philo)
 	sem_wait(philo->common->forks);
 	checking_table(philo, " has taken a fork\n");
 	sem_wait(philo->common->forks);
-	checking_table(philo,  " has taken a fork\n");
+	checking_table(philo, " has taken a fork\n");
 	checking_table(philo, " is eating\n");
 	sem_wait(philo->lst_meal);
 	philo->time_lst_meal = get_now();
@@ -54,14 +54,14 @@ void	banquet(t_philo *philo)
 
 pid_t	monitor_meals(void *ph)
 {
-	t_philo			*philo;
-	int				count;
-	pid_t pid;
-	
+	t_philo	*philo;
+	int		count;
+	pid_t	pid;
+
 	philo = ph;
 	count = 0;
 	pid = fork();
-	if(pid == 0)
+	if (pid == 0)
 	{
 		while (1)
 		{
@@ -78,17 +78,18 @@ pid_t	monitor_meals(void *ph)
 
 void	*monitor_death(void *ph)
 {
-	t_philo			*philo;
+	t_philo		*philo;
 	long long	timestamp;
 
 	philo = ph;
 	while (1)
 	{
 		sem_wait(philo->lst_meal);
-		if ((timestamp = get_now()) - philo->time_lst_meal > philo->common->death_clock)
+		timestamp = get_now();
+		if (timestamp - philo->time_lst_meal > philo->common->death_clock)
 		{
 			sem_post(philo->lst_meal);
-			leaving_tbl(ph, " has died\n");
+			leaving_tbl(ph, " died\n");
 			return (NULL);
 		}
 		sem_post(philo->lst_meal);
@@ -98,13 +99,13 @@ void	*monitor_death(void *ph)
 
 int	remove_plates(t_common *dishes, pid_t *pid, pid_t pid2)
 {
-	int i;
+	int	i;
 
 	sem_wait(dishes->session_end);
 	i = -1;
 	while (++i < dishes->philo_on_table)
 		kill(pid[i], SIGKILL);
-	if(dishes->nbr_of_meals > 0) 
+	if (dishes->nbr_of_meals > 0)
 		kill(pid2, SIGKILL);
 	unlink_tableware(dishes);
 	free(pid);
