@@ -6,7 +6,7 @@
 /*   By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 10:52:49 by mamaral-          #+#    #+#             */
-/*   Updated: 2023/12/12 18:20:49 by mamaral-         ###   ########.fr       */
+/*   Updated: 2023/12/15 16:40:01 by mamaral-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,5 +62,9 @@ int			putting_the_table(t_common *setup);
 int			putting_the_cutlery(t_common *silverware);
 int			start_event(t_common *data);
 void		waiter(t_common *guests);
+size_t		ft_strlen(const char *s);
+int			ft_puterr(char *str);
+void		ft_putnbr(long long n);
+char		*ft_itoa_philo(int nbr);
 
 #endif

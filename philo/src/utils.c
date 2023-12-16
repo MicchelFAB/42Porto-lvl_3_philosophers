@@ -6,7 +6,7 @@
 /*   By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 15:39:26 by mamaral-          #+#    #+#             */
-/*   Updated: 2023/12/15 13:13:27 by mamaral-         ###   ########.fr       */
+/*   Updated: 2023/12/15 18:10:15 by mamaral-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,20 +48,22 @@ void	clean_table(t_common *common)
 
 void	checking_table(t_philo *philo, const char *status)
 {
-	long long	time;
-
 	pthread_mutex_lock(&philo->common->print_status);
 	if (!remove_plates(philo, NO))
 	{
-		time = queued(philo, -1) - philo->common->begin;
-		printf("%lld %d %s\n", time, philo->id, status);
+		ft_putnbr(queued(philo, -1) - philo->common->begin);
+		write(1, "\t", 1);
+		ft_putnbr(philo->id);
+		write(1, status, ft_strlen(status));
 	}
-	if (status[0] == 'A')
-		printf("%s\n", "Number of meals reached!");
-	else if (status[0] == 'd')
+	if (status[0] == 'N')
+		write(1, status, ft_strlen(status));
+	else if (status[1] == 'd')
 	{
-		time = queued(philo, -1) - philo->common->begin;
-		printf("%lld %d %s\n", time, philo->id, status);
+		ft_putnbr(queued(philo, -1) - philo->common->begin);
+		write(1, "\t", 1);
+		ft_putnbr(philo->id);
+		write(1, status, ft_strlen(status));
 	}
 	pthread_mutex_unlock(&philo->common->print_status);
 }
@@ -83,7 +85,7 @@ long long	queued(t_philo *philo, long long end)
 		{
 			gettimeofday(&timeval, NULL);
 			now = (timeval.tv_sec * 1000) + (timeval.tv_usec / 1000);
-			usleep(100);
+			usleep(500);
 		}
 	}
 	return (0);

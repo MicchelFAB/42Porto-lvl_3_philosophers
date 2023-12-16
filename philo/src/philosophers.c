@@ -6,7 +6,7 @@
 /*   By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/04 14:06:19 by mamaral-          #+#    #+#             */
-/*   Updated: 2023/12/15 13:11:22 by mamaral-         ###   ########.fr       */
+/*   Updated: 2023/12/15 18:02:26 by mamaral-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,16 +17,18 @@ void	serving(t_philo *philo)
 	if (philo->id % 2 == 0)
 	{
 		pthread_mutex_lock(&philo->common->fork_hold[philo->fork[0]]);
+		checking_table(philo, "\thas taken a fork\n");
 		pthread_mutex_lock(&philo->common->fork_hold[philo->fork[1]]);
+		checking_table(philo, "\thas taken a fork\n");
 	}
 	else
 	{
 		pthread_mutex_lock(&philo->common->fork_hold[philo->fork[1]]);
+		checking_table(philo, "\thas taken a fork\n");
 		pthread_mutex_lock(&philo->common->fork_hold[philo->fork[0]]);
+		checking_table(philo, "\thas taken a fork\n");
 	}
-	checking_table(philo, "has taken a fork");
-	checking_table(philo, "has taken a fork");
-	checking_table(philo, "is eating");
+	checking_table(philo, "\tis eating\n");
 	queued(philo, philo->common->eat_delay);
 	pthread_mutex_lock(&philo->common->chew);
 	philo->eating++;
@@ -38,7 +40,7 @@ void	serving(t_philo *philo)
 
 void	*table_for_one(t_common *common)
 {
-	checking_table(&common->philo[0], "has taken a fork");
+	checking_table(&common->philo[0], "\thas taken a fork\n");
 	queued(&common->philo[0], common->death_clock);
 	checking_table(&common->philo[0], "sike");
 	remove_plates(&common->philo[0], YES);
@@ -59,14 +61,14 @@ void	*symposium(void *group)
 		serving(philo);
 		if (remove_plates(philo, NO))
 			return (0);
-		checking_table(philo, "is sleeping");
+		if (philo->eating == philo->common->nbr_of_meals)
+			return (0);
+		checking_table(philo, "\tis sleeping\n");
 		queued(philo, philo->common->sleeping_time);
-		checking_table(philo, "is thinking");
+		checking_table(philo, "\tis thinking\n");
 		if (philo->common->philo_on_table % 2 != 0
 			&& philo->common->philo_on_table <= 127)
 			queued(philo, philo->common->eat_delay);
-		if (philo->eating == philo->common->nbr_of_meals)
-			return (0);
 	}
 	return (0);
 }
@@ -80,7 +82,7 @@ int	table_service(t_philo *philo)
 	if ((now - philo->lst_meal) >= philo->common->death_clock)
 	{
 		remove_plates(philo, YES);
-		checking_table(philo, "died");
+		checking_table(philo, "\tdied\n");
 		pthread_mutex_unlock(&philo->common->chew);
 		return (1);
 	}
@@ -91,7 +93,7 @@ int	table_service(t_philo *philo)
 		if (philo->common->tummy_hurts >= philo->common->philo_on_table)
 		{
 			remove_plates(philo, YES);
-			checking_table(philo, "A");
+			checking_table(philo, "Number of meals reached\n");
 			pthread_mutex_unlock(&philo->common->chew);
 			return (1);
 		}

@@ -6,7 +6,7 @@
 #    By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/20 11:23:00 by mamaral-          #+#    #+#              #
-#    Updated: 2023/12/15 12:12:50 by mamaral-         ###   ########.fr        #
+#    Updated: 2023/12/15 16:38:53 by mamaral-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,7 @@ CFLAGS = -Wall -Wextra -Werror -pthread -g
 INCLUDES = -I ./inc/
 SRC_DIR = ./src
 
-SRCS = philosophers utils init
+SRCS = philosophers utils init mini_ft
 
 SRCS := $(SRCS:%=$(SRC_DIR)/%.c)
 

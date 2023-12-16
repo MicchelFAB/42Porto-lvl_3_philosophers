@@ -6,7 +6,7 @@
 /*   By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/07 13:06:51 by mamaral-          #+#    #+#             */
-/*   Updated: 2023/12/14 11:31:06 by mamaral-         ###   ########.fr       */
+/*   Updated: 2023/12/15 16:40:29 by mamaral-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,11 @@ int	main(int ac, char **av)
 	t_common	common;
 
 	if (check_args(ac, av, &common) == -1)
-		return (printf("Error: Invalid arguments.\n"));
+		return (ft_puterr("Error: Invalid arguments.\n"));
 	if (putting_the_table(&common) == -1)
-		return (printf("Error: Failed to put the table.\n"));
+		return (ft_puterr("Error: Failed to put the table.\n"));
 	if (start_event(&common) == -1)
-		return (printf("Error: Failed to create thread.\n"));
+		return (ft_puterr("Error: Failed to create thread.\n"));
 	waiter(&common);
 	return (0);
 }

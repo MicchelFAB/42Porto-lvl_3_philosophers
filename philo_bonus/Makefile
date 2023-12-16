@@ -6,14 +6,14 @@
 #    By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/20 11:23:00 by mamaral-          #+#    #+#              #
-#    Updated: 2023/12/15 13:28:08 by mamaral-         ###   ########.fr        #
+#    Updated: 2023/12/16 19:59:07 by mamaral-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CC = cc
 RM = rm -rf
 
-NAME = philo_bonus
+NAME = philo#_bonus
 
 CFLAGS = -Wall -Wextra -Werror -pthread -g
 

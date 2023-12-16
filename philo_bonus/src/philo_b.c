@@ -6,7 +6,7 @@
 /*   By: mamaral- <mamaral-@student.42porto.com     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/07 13:06:51 by mamaral-          #+#    #+#             */
-/*   Updated: 2023/12/15 13:38:13 by mamaral-         ###   ########.fr       */
+/*   Updated: 2023/12/15 16:42:40 by mamaral-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ int	check_args(int ac, char **av, t_common *args)
 {
 	if (ac < 5 || ac > 6)
 	{
-		printf("Arguments should be: [nbr_of_philo] [time_to_die] [time_to_eat]\
+		ft_puterr("Arguments should be: [nbr_of_philo] [time_to_die] [time_to_eat]\
 		 [time_to_sleep] *optional: [nbr_of_times_each_philo_must_eat]");
 		return (-1);
 	}
