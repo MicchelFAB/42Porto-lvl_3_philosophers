@@ -11,6 +11,10 @@
 /* ************************************************************************** */
 
 #include "philo.h"
+#include <iostream>
+#include <chrono>
+#include <thread>
+#include <mutex>
 
 int	ft_atoi_philo(char *str)
 {
@@ -29,78 +33,68 @@ int	ft_atoi_philo(char *str)
 	return (r);
 }
 
-void	clean_table(t_common *common)
+void	clean_table(Common *common)
 {
 	int	i;
 
 	i = -1;
 	while (++i < common->philo_on_table)
-		pthread_join(common->philo[i].p_thread, NULL);
+		common->philo[i].p_thread.join();
 	i = -1;
 	while (++i < common->philo_on_table)
-		pthread_mutex_destroy(&common->fork_hold[i]);
+		common->fork_hold[i].unlock();
 	free(common->philo);
 	free(common->fork_hold);
-	pthread_mutex_destroy(&common->print_status);
-	pthread_mutex_destroy(&common->chew);
-	pthread_mutex_destroy(&common->session_end);
+	common->print_status.unlock();
+	common->chew.unlock();
+	common->session_end.unlock();
 }
 
-void	checking_table(t_philo *philo, const char *status)
+void	checking_table(Philo *philo, const char *status)
 {
-	pthread_mutex_lock(&philo->common->print_status);
+	philo->common->print_status.lock();
 	if (!remove_plates(philo, NO))
 	{
-		ft_putnbr(queued(philo, -1) - philo->common->begin);
-		write(1, "\t", 1);
-		ft_putnbr(philo->id);
-		write(1, status, ft_strlen(status));
+		std::cout << queued(philo, -1) - philo->common->begin << "\t";
+		std::cout << philo->id << status;
 	}
 	if (status[0] == 'N')
-		write(1, status, ft_strlen(status));
+		std::cout << status;
 	else if (status[1] == 'd')
 	{
-		ft_putnbr(queued(philo, -1) - philo->common->begin);
-		write(1, "\t", 1);
-		ft_putnbr(philo->id);
-		write(1, status, ft_strlen(status));
+		std::cout << queued(philo, -1) - philo->common->begin << "\t";
+		std::cout << philo->id << status;
 	}
-	pthread_mutex_unlock(&philo->common->print_status);
+	philo->common->print_status.unlock();
 }
 
-long long	queued(t_philo *philo, long long end)
+std::chrono::time_point<std::chrono::steady_clock> queued(Philo *philo, std::chrono::milliseconds end)
 {
-	long long		begin;
-	long long		now;
-	struct timeval	timeval;
-
-	now = 0;
-	gettimeofday(&timeval, NULL);
-	begin = (timeval.tv_sec * 1000) + (timeval.tv_usec / 1000);
-	if (end == -1)
-		return (begin);
+	auto begin = std::chrono::steady_clock::now();
+	if (end == std::chrono::milliseconds(-1))
+		return begin;
 	else
 	{
+		auto now = begin;
 		while (!remove_plates(philo, NO) && (now - begin) < end)
 		{
-			gettimeofday(&timeval, NULL);
-			now = (timeval.tv_sec * 1000) + (timeval.tv_usec / 1000);
-			usleep(500);
+			now = std::chrono::steady_clock::now();
+			std::this_thread::sleep_for(std::chrono::milliseconds(500));
 		}
 	}
-	return (0);
+	return std::chrono::time_point<std::chrono::steady_clock>();
 }
 
-int	remove_plates(t_philo *philo, int dinner_end)
+int	remove_plates(Philo *philo, int dinner_end)
 {
-	pthread_mutex_lock(&philo->common->session_end);
+	philo->common->session_end.lock();
 	if (dinner_end || philo->common->finish_flag)
 	{
 		if (dinner_end)
 			philo->common->finish_flag = 1;
-		pthread_mutex_unlock(&philo->common->session_end);
+		philo->common->session_end.unlock();
 		return (1);
 	}
-	pthread_mutex_unlock(&philo->common->session_end);
+	philo->common->session_end.unlock();
 	return (0);
 }

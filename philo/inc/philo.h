@@ -13,55 +13,59 @@
 #ifndef PHILO_H
 # define PHILO_H
 
-# include <pthread.h>
-# include <stdio.h>
-# include <stdlib.h>
-# include <unistd.h>
-# include <sys/types.h>
-# include <sys/time.h>
+# include <iostream>
+# include <vector>
+# include <array>
+# include <chrono>
+# include <thread>
+# include <mutex>
+# include <semaphore>
+# include <condition_variable>
 
 # define YES 1
 # define NO 0
 
-typedef struct s_philo
+class Philo
 {
+public:
 	int				id;
 	int				eating;
 	int				fork[2];
-	long long		lst_meal;
-	pthread_t		p_thread;
-	struct s_common	*common;
-}					t_philo;
+	std::chrono::time_point<std::chrono::steady_clock>	lst_meal;
+	std::thread		p_thread;
+	Common*			common;
+};
 
-typedef struct s_common
+class Common
 {
+public:
 	int				philo_on_table;
-	int				death_clock;
-	int				eat_delay;
-	int				sleeping_time;
+	std::chrono::milliseconds	death_clock;
+	std::chrono::milliseconds	eat_delay;
+	std::chrono::milliseconds	sleeping_time;
 	int				nbr_of_meals;
 	int				tummy_hurts;
 	int				finish_flag;
-	long long		begin;
-	pthread_mutex_t	*fork_hold;
-	pthread_mutex_t	print_status;
-	pthread_mutex_t	chew;
-	pthread_mutex_t	session_end;
-	t_philo			*philo;
-}					t_common;
+	std::chrono::time_point<std::chrono::steady_clock>	begin;
+	std::vector<std::mutex>	fork_hold;
+	std::mutex		print_status;
+	std::mutex		chew;
+	std::mutex		session_end;
+	std::vector<Philo>	philo;
+};
 
 int			ft_atoi_philo(char *str);
-void		clean_table(t_common *common);
-long long	queued(t_philo *philo, long long end);
+void		clean_table(Common *common);
+std::chrono::time_point<std::chrono::steady_clock>	queued(Philo *philo, std::chrono::milliseconds end);
 void		*symposium(void *group);
-void		checking_table(t_philo *philo, const char *status);
-long long	get_now(void);
-int			remove_plates(t_philo *philo, int dinner_end);
-int			check_args(int ac, char **av, t_common *args);
-int			putting_the_table(t_common *setup);
-int			putting_the_cutlery(t_common *silverware);
-int			start_event(t_common *data);
-void		waiter(t_common *guests);
+void		checking_table(Philo *philo, const char *status);
+std::chrono::time_point<std::chrono::steady_clock>	get_now(void);
+int			remove_plates(Philo *philo, int dinner_end);
+int			check_args(int ac, char **av, Common *args);
+int			putting_the_table(Common *setup);
+int			putting_the_cutlery(Common *silverware);
+int			start_event(Common *data);
+void		waiter(Common *guests);
 size_t		ft_strlen(const char *s);
 int			ft_puterr(char *str);
 void		ft_putnbr(long long n);

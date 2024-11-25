@@ -11,41 +11,34 @@
 /* ************************************************************************** */
 
 #include "philo_b.h"
+#include <iostream>
+#include <string>
+#include <thread>
+#include <mutex>
 
-/**
- * @brief 
- * 
- * @param setup 
- * @return int 
- */
-int	tbl_unavail(t_common *setup)
+int	tbl_unavail(Common *setup)
 {
 	unlink_tableware(setup);
 	free(setup->philo);
 	return (-1);
 }
 
-void	leaving_tbl(t_philo *philo, const char *str)
+void	leaving_tbl(Philo *philo, const char *str)
 {
-	sem_wait(philo->common->print_status);
+	philo->common->print_status.acquire();
 	if (*str == ' ')
 	{
-		ft_putnbr(get_now() - philo->common->begin);
-		write(1, "\t", 1);
-		ft_putnbr(philo->id + 1);
+		std::cout << get_now() - philo->common->begin << "\t" << philo->id + 1;
 	}
-	write(1, str, ft_strlen(str));
-	sem_post(philo->common->session_end);
+	std::cout << str;
+	philo->common->session_end.release();
 }
 
-void	checking_table(t_philo *philo, const char *status)
+void	checking_table(Philo *philo, const char *status)
 {
-	sem_wait(philo->common->print_status);
-	ft_putnbr(get_now() - philo->common->begin);
-	write(1, "\t", 1);
-	ft_putnbr(philo->id + 1);
-	write(1, status, ft_strlen(status));
-	sem_post(philo->common->print_status);
+	philo->common->print_status.acquire();
+	std::cout << get_now() - philo->common->begin << "\t" << philo->id + 1 << status;
+	philo->common->print_status.release();
 }
 
 char	*get_philo_name(char *s, int n)
@@ -57,20 +50,20 @@ char	*get_philo_name(char *s, int n)
 	tmp = ft_itoa_philo(n);
 	if (!tmp)
 		return (NULL);
-	size = ft_strlen(s) + ft_strlen(tmp);
-	str = malloc(sizeof(char) * (size + 1));
+	size = std::strlen(s) + std::strlen(tmp);
+	str = (char*)malloc(sizeof(char) * (size + 1));
 	if (!str)
 	{
 		free(tmp);
 		return (NULL);
 	}
-	ft_strlcpy(str, s, size);
-	ft_strlcpy(str + ft_strlen(s), tmp, size);
+	std::strncpy(str, s, size);
+	std::strncpy(str + std::strlen(s), tmp, size);
 	free(tmp);
 	return (str);
 }
 
-void	unlink_tableware(t_common *setup)
+void	unlink_tableware(Common *setup)
 {
 	int		i;
 	char	*str;

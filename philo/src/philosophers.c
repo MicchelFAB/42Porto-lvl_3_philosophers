@@ -11,34 +11,37 @@
 /* ************************************************************************** */
 
 #include "philo.h"
+#include <iostream>
+#include <thread>
+#include <mutex>
 
-void	serving(t_philo *philo)
+void	serving(Philo *philo)
 {
 	if (philo->id % 2 == 0)
 	{
-		pthread_mutex_lock(&philo->common->fork_hold[philo->fork[0]]);
+		philo->common->fork_hold[philo->fork[0]].lock();
 		checking_table(philo, "\thas taken a fork\n");
-		pthread_mutex_lock(&philo->common->fork_hold[philo->fork[1]]);
+		philo->common->fork_hold[philo->fork[1]].lock();
 		checking_table(philo, "\thas taken a fork\n");
 	}
 	else
 	{
-		pthread_mutex_lock(&philo->common->fork_hold[philo->fork[1]]);
+		philo->common->fork_hold[philo->fork[1]].lock();
 		checking_table(philo, "\thas taken a fork\n");
-		pthread_mutex_lock(&philo->common->fork_hold[philo->fork[0]]);
+		philo->common->fork_hold[philo->fork[0]].lock();
 		checking_table(philo, "\thas taken a fork\n");
 	}
 	checking_table(philo, "\tis eating\n");
 	queued(philo, philo->common->eat_delay);
-	pthread_mutex_lock(&philo->common->chew);
+	philo->common->chew.lock();
 	philo->eating++;
 	philo->lst_meal = queued(philo, -1);
-	pthread_mutex_unlock(&philo->common->chew);
-	pthread_mutex_unlock(&philo->common->fork_hold[philo->fork[0]]);
-	pthread_mutex_unlock(&philo->common->fork_hold[philo->fork[1]]);
+	philo->common->chew.unlock();
+	philo->common->fork_hold[philo->fork[0]].unlock();
+	philo->common->fork_hold[philo->fork[1]].unlock();
 }
 
-void	*table_for_one(t_common *common)
+void	*table_for_one(Common *common)
 {
 	checking_table(&common->philo[0], "\thas taken a fork\n");
 	queued(&common->philo[0], common->death_clock);
@@ -49,11 +52,11 @@ void	*table_for_one(t_common *common)
 
 void	*symposium(void *group)
 {
-	t_philo	*philo;
+	Philo	*philo;
 
-	philo = (t_philo *)group;
+	philo = static_cast<Philo*>(group);
 	if (philo->id % 2 == 0)
-		usleep(philo->common->eat_delay * 1000);
+		std::this_thread::sleep_for(philo->common->eat_delay);
 	while (1)
 	{
 		if (philo->common->philo_on_table == 1)
@@ -73,17 +76,15 @@ void	*symposium(void *group)
 	return (0);
 }
 
-int	table_service(t_philo *philo)
+int	table_service(Philo *philo)
 {
-	long long	now;
-
-	now = queued(philo, -1);
-	pthread_mutex_lock(&philo->common->chew);
+	auto now = queued(philo, -1);
+	philo->common->chew.lock();
 	if ((now - philo->lst_meal) >= philo->common->death_clock)
 	{
 		remove_plates(philo, YES);
 		checking_table(philo, "\tdied\n");
-		pthread_mutex_unlock(&philo->common->chew);
+		philo->common->chew.unlock();
 		return (1);
 	}
 	else if (philo->common->nbr_of_meals > 0 && philo->eating >= philo
@@ -94,15 +95,15 @@ int	table_service(t_philo *philo)
 		{
 			remove_plates(philo, YES);
 			checking_table(philo, "Number of meals reached\n");
-			pthread_mutex_unlock(&philo->common->chew);
+			philo->common->chew.unlock();
 			return (1);
 		}
 	}
-	pthread_mutex_unlock(&philo->common->chew);
+	philo->common->chew.unlock();
 	return (0);
 }
 
-void	waiter(t_common *guests)
+void	waiter(Common *guests)
 {
 	int	i;
 	int	meals;
@@ -117,7 +118,7 @@ void	waiter(t_common *guests)
 			if (meals && table_service(&guests->philo[i]))
 				meals = 0;
 		}
-		usleep(10);
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 	clean_table(guests);
 }

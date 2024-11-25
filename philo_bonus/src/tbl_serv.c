@@ -11,72 +11,63 @@
 /* ************************************************************************** */
 
 #include "philo_b.h"
+#include <iostream>
+#include <chrono>
 
-long long	get_now(void)
+std::chrono::time_point<std::chrono::steady_clock> get_now()
 {
-	struct timeval	timeval;
-
-	gettimeofday(&timeval, NULL);
-	return ((timeval.tv_sec * 1000) + (timeval.tv_usec / 1000));
+    return std::chrono::steady_clock::now();
 }
 
-unsigned long	ft_atol_philo(char *str)
+unsigned long ft_atol_philo(char *str)
 {
-	unsigned long	r;
-
-	r = 0;
-	if (str == NULL || str[0] == '-')
-		return (-1);
-	while (*str >= '0' && *str <= '9')
-	{
-		r = r * 10 + (*str - '0');
-		str++;
-	}
-	if (*str != '\0')
-		return (-1);
-	return (r);
+    unsigned long r = 0;
+    if (str == NULL || str[0] == '-')
+        return -1;
+    while (*str >= '0' && *str <= '9')
+    {
+        r = r * 10 + (*str - '0');
+        str++;
+    }
+    if (*str != '\0')
+        return -1;
+    return r;
 }
 
-static int	decimal_places(long n)
+static int decimal_places(long n)
 {
-	int	i;
-
-	i = 0;
-	if (n <= 0)
-	{
-		i++;
-		n = -n;
-	}
-	while (n)
-	{
-		i++;
-		n /= 10;
-	}
-	return (i);
+    int i = 0;
+    if (n <= 0)
+    {
+        i++;
+        n = -n;
+    }
+    while (n)
+    {
+        i++;
+        n /= 10;
+    }
+    return i;
 }
 
-char	*ft_itoa_philo(int nbr)
+char *ft_itoa_philo(int nbr)
 {
-	long	n;
-	int		i;
-	char	*s;
-
-	n = nbr;
-	i = decimal_places(n);
-	s = malloc(sizeof(char) * (i + 1));
-	if (!s)
-		return (NULL);
-	s[i--] = '\0';
-	if (n == 0)
-	{
-		s[0] = '0';
-		return (s);
-	}
-	while (n)
-	{
-		s[i] = n % 10 + '0';
-		n /= 10;
-		i--;
-	}
-	return (s);
+    long n = nbr;
+    int i = decimal_places(n);
+    char *s = (char *)malloc(sizeof(char) * (i + 1));
+    if (!s)
+        return NULL;
+    s[i--] = '\0';
+    if (n == 0)
+    {
+        s[0] = '0';
+        return s;
+    }
+    while (n)
+    {
+        s[i] = n % 10 + '0';
+        n /= 10;
+        i--;
+    }
+    return s;
 }

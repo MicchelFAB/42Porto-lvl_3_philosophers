@@ -11,30 +11,23 @@
 /* ************************************************************************** */
 
 #include "philo.h"
+#include <iostream>
+#include <string>
 
 size_t	ft_strlen(const char *s)
 {
-	size_t	i;
-
-	i = 0;
-	while (s[i])
-		i++;
-	return (i);
+	return std::strlen(s);
 }
 
 int	ft_puterr(char *str)
 {
-	write(2, str, ft_strlen(str));
-	return (-1);
+	std::cerr << str;
+	return -1;
 }
 
 void	ft_putnbr(long long n)
 {
-	char	*str;
-
-	str = ft_itoa_philo(n);
-	write(1, str, ft_strlen(str));
-	free(str);
+	std::cout << n;
 }
 
 static int	decimal_places(long n)
@@ -63,7 +56,7 @@ char	*ft_itoa_philo(int nbr)
 
 	n = nbr;
 	i = decimal_places(n);
-	s = malloc(sizeof(char) * (i + 1));
+	s = (char*)malloc(sizeof(char) * (i + 1));
 	if (!s)
 		return (NULL);
 	s[i--] = '\0';

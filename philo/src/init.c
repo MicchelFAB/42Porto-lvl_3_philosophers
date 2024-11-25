@@ -11,10 +11,13 @@
 /* ************************************************************************** */
 
 #include "philo.h"
+#include <iostream>
+#include <thread>
+#include <mutex>
 
 int	main(int ac, char **av)
 {
-	t_common	common;
+	Common	common;
 
 	if (check_args(ac, av, &common) == -1)
 		return (ft_puterr("Error: Invalid arguments.\n"));
@@ -26,16 +29,15 @@ int	main(int ac, char **av)
 	return (0);
 }
 
-int	check_args(int ac, char **av, t_common *args)
+int	check_args(int ac, char **av, Common *args)
 {
 	if (ac < 5 || ac > 6)
 		return (-1);
 	args->philo_on_table = ft_atoi_philo(av[1]);
-	args->death_clock = ft_atoi_philo(av[2]);
-	args->eat_delay = ft_atoi_philo(av[3]);
-	args->sleeping_time = ft_atoi_philo(av[4]);
-	if (args->philo_on_table < 1 || args->death_clock == -1 || args->eat_delay
-		== -1 || args->sleeping_time == -1)
+	args->death_clock = std::chrono::milliseconds(ft_atoi_philo(av[2]));
+	args->eat_delay = std::chrono::milliseconds(ft_atoi_philo(av[3]));
+	args->sleeping_time = std::chrono::milliseconds(ft_atoi_philo(av[4]));
+	if (args->philo_on_table < 1 || args->death_clock.count() == -1 || args->eat_delay.count() == -1 || args->sleeping_time.count() == -1)
 		return (-1);
 	if (!av[5])
 		args->nbr_of_meals = -1;
@@ -50,14 +52,12 @@ int	check_args(int ac, char **av, t_common *args)
 	return (0);
 }
 
-int	putting_the_table(t_common *setup)
+int	putting_the_table(Common *setup)
 {
 	int	i;
 
 	i = -1;
-	setup->philo = malloc(sizeof(t_philo) * setup->philo_on_table);
-	if (!setup->philo)
-		return (-1);
+	setup->philo.resize(setup->philo_on_table);
 	while (++i < setup->philo_on_table)
 	{
 		setup->philo[i].id = i + 1;
@@ -76,15 +76,12 @@ int	putting_the_table(t_common *setup)
 	return (0);
 }
 
-int	putting_the_cutlery(t_common *silverware)
+int	putting_the_cutlery(Common *silverware)
 {
 	int	i;
 
 	i = -1;
-	silverware->fork_hold = malloc(sizeof(pthread_mutex_t)
-			* silverware->philo_on_table);
-	if (!silverware->fork_hold)
-		return (-1);
+	silverware->fork_hold.resize(silverware->philo_on_table);
 	while (++i < silverware->philo_on_table)
 	{
 		if (pthread_mutex_init(&silverware->fork_hold[i], NULL))
@@ -99,7 +96,7 @@ int	putting_the_cutlery(t_common *silverware)
 	return (0);
 }
 
-int	start_event(t_common *data)
+int	start_event(Common *data)
 {
 	int			i;
 

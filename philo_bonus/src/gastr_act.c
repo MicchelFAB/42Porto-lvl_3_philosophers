@@ -11,65 +11,69 @@
 /* ************************************************************************** */
 
 #include "philo_b.h"
+#include <iostream>
+#include <thread>
+#include <mutex>
 
-void	serving(t_philo *philo)
+void	serving(Philo *philo)
 {
-	sem_wait(philo->common->forks);
+	philo->common->forks.acquire();
 	checking_table(philo, " has taken a fork\n");
-	sem_wait(philo->common->forks);
+	philo->common->forks.acquire();
 	checking_table(philo, " has taken a fork\n");
 	checking_table(philo, " is eating\n");
-	sem_wait(philo->lst_meal);
+	philo->lst_meal.acquire();
 	philo->time_lst_meal = get_now();
-	sem_post(philo->lst_meal);
-	usleep(philo->common->eat_delay);
-	sem_post(philo->common->forks);
-	sem_post(philo->common->forks);
+	philo->lst_meal.release();
+	std::this_thread::sleep_for(philo->common->eat_delay);
+	philo->common->forks.release();
+	philo->common->forks.release();
 	if (++philo->eating == philo->common->nbr_of_meals)
-		sem_post(philo->common->chew);
+		philo->common->chew.release();
 }
 
-void	banquet(t_philo *philo)
+void	banquet(Philo *philo)
 {
 	char		*str;
 
 	philo->eating = 0;
-	philo->common->forks = sem_open("/forks", 0644);
-	philo->common->print_status = sem_open("/print_status", 0644);
-	philo->common->chew = sem_open("/chew", 0644);
-	philo->common->session_end = sem_open("/session_end", 0644);
+	philo->common->forks = std::binary_semaphore(1);
+	philo->common->print_status = std::binary_semaphore(1);
+	philo->common->chew = std::binary_semaphore(0);
+	philo->common->session_end = std::binary_semaphore(0);
 	str = get_philo_name("/lst_meal", philo->id);
-	philo->lst_meal = sem_open(str, 0644);
+	philo->lst_meal = std::binary_semaphore(1);
 	free(str);
 	philo->time_lst_meal = philo->common->begin;
-	pthread_create(&philo->p_thread, NULL, monitor_death, philo);
+	philo->p_thread = std::thread(monitor_death, philo);
 	while (1)
 	{
 		serving(philo);
 		checking_table(philo, " is sleeping\n");
-		usleep(philo->common->sleeping_time);
+		std::this_thread::sleep_for(philo->common->sleeping_time);
 		checking_table(philo, " is thinking\n");
 	}
 }
 
 pid_t	monitor_meals(void *ph)
 {
-	t_philo	*philo;
+	Philo	*philo;
 	int		count;
 	pid_t	pid;
 
-	philo = ph;
+	philo = static_cast<Philo*>(ph);
 	count = 0;
 	pid = fork();
 	if (pid == 0)
 	{
 		while (1)
 		{
-			sem_wait(philo->common->chew);
+			philo->common->chew.acquire();
 			if (++count >= philo->common->philo_on_table)
 			{
 				leaving_tbl(ph, "Number of meals reached!\n");
 				exit(0);
+				return 0;
 			}
 		}
 	}
@@ -78,30 +82,30 @@ pid_t	monitor_meals(void *ph)
 
 void	*monitor_death(void *ph)
 {
-	t_philo		*philo;
+	Philo		*philo;
 	long long	timestamp;
 
-	philo = ph;
+	philo = static_cast<Philo*>(ph);
 	while (1)
 	{
-		sem_wait(philo->lst_meal);
+		philo->lst_meal.acquire();
 		timestamp = get_now();
 		if (timestamp - philo->time_lst_meal > philo->common->death_clock)
 		{
-			sem_post(philo->lst_meal);
+			philo->lst_meal.release();
 			leaving_tbl(ph, " died\n");
-			return (NULL);
+			return NULL;
 		}
-		sem_post(philo->lst_meal);
-		usleep(10);
+		philo->lst_meal.release();
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 }
 
-int	remove_plates(t_common *dishes, pid_t *pid, pid_t pid2)
+int	remove_plates(Common *dishes, pid_t *pid, pid_t pid2)
 {
 	int	i;
 
-	sem_wait(dishes->session_end);
+	dishes->session_end.acquire();
 	i = -1;
 	while (++i < dishes->philo_on_table)
 		kill(pid[i], SIGKILL);
